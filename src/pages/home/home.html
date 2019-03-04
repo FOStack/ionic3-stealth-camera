@@ -11,7 +11,11 @@
   <!-- For testing purposes -->
   <!-- Not necesary for functionality -->
   <ion-fab bottom right padding>
-   <button ion-fab (click)="stealthPhoto()">
+   <button *ngIf="cameraStarted" ion-fab color="light" (click)="stealthPhoto()">
+     <ion-icon name="camera">
+     </ion-icon>
+   </button>
+   <button *ngIf="!cameraStarted" ion-fab color="dark" (click)="startCamera()">
      <ion-icon name="camera">
      </ion-icon>
    </button>

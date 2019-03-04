@@ -7,7 +7,9 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, Camer
   ],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -24,6 +27,7 @@ import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, Camer
     HomePage
   ],
   providers: [
+    AndroidPermissions,
     CameraPreview,
     StatusBar,
     SplashScreen,

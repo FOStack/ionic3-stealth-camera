@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
+import { AndroidPermissions } from '@ionic-native/android-permissions';
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions/*, CameraPreviewDimensions/**/ } from '@ionic-native/camera-preview';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'page-home',
@@ -9,16 +11,25 @@ import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions/*, Cam
 })
 export class HomePage {
 
+  cameraStarted: boolean = false;
   picture: any = null; // Will hold picture data;
 
   constructor(
+  private androidPermissions: AndroidPermissions,
+  public storage: Storage,
   // Using AlertController for testing purposes
   public alertCtrl: AlertController,
   private cameraPreview: CameraPreview,
   public navCtrl: NavController
   ) {
     // Adding permission handling soon...
-    this.startCamera();
+    this.camPermission().then(
+      result => {
+        this.startCamera();
+      }, err => {
+        this.requestCamPermission();
+      }
+    );
   }
 
 
@@ -52,19 +63,22 @@ export class HomePage {
       y: 0,
       width: window.screen.width,
       height: window.screen.height,
-      camera: 'rear', // Or 'front'
-      tapPhoto: true,
-      previewDrag: true,
-      toBack: true,
+      camera: this.cameraPreview.CAMERA_DIRECTION.FRONT, // Or 'front'
+      //tapPhoto: true,
+      //previewDrag: true,
+      toBack: true, // This hides the preview
       alpha: 1
     };
 
     // Starts the camera
     this.cameraPreview.startCamera(cameraPreviewOpts).then(
     (res) => {
-      this.showAlert(res, this.stealthPhoto());
+      this.cameraPreview.hide();
+      this.cameraStarted = true;
+      this.showAlert(res);
     },
     (err) => {
+      this.cameraStarted = false;
       this.showAlert(err);
     });
   }
@@ -84,8 +98,51 @@ export class HomePage {
     // Takes the picture
     this.cameraPreview.takePicture(pictureOpts).then((imageData) => {
       this.picture = 'data:image/jpeg;base64,' + imageData;
+      this.set('data', this.picture);
     }, (err) => {
       this.showAlert(err);
     });
+  }
+
+
+
+
+
+  public set(settingName, value){
+    return this.storage.set(`pic:${ settingName }`,value);
+  }
+
+
+
+
+
+  public async get(settingName){
+    await this.storage.get(`pic:${ settingName }`).then((val)=>{
+      this.picture = val;
+    });
+  }
+
+
+
+
+
+  public async remove(settingName){
+    return await this.storage.remove(`pic:${ settingName }`);
+  }
+
+
+
+
+
+  camPermission(): any {
+    return this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.CAMERA)
+  }
+
+
+
+
+
+  requestCamPermission(): any {
+    return this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.CAMERA);
   }
 }
