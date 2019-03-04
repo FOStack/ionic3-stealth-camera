@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { AlertController } from 'ionic-angular';
-import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
+import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions/*, CameraPreviewDimensions/**/ } from '@ionic-native/camera-preview';
 
 @Component({
   selector: 'page-home',
@@ -9,21 +9,24 @@ import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, Camer
 })
 export class HomePage {
 
-  picture: any = null;
+  picture: any = null; // Will hold picture data;
 
   constructor(
+  // Using AlertController for testing purposes
   public alertCtrl: AlertController,
   private cameraPreview: CameraPreview,
   public navCtrl: NavController
   ) {
-    // Add permission handling...
-    this.stealthPhoto();
+    // Adding permission handling soon...
+    this.startCamera();
   }
 
 
 
 
 
+  // This AlertController is for testing purposes only
+  // It is not necesary to functionality
   showAlert(msg?, func?) {
     const alert = this.alertCtrl.create({
       title: 'Alert!',
@@ -42,27 +45,27 @@ export class HomePage {
 
 
 
-  stealthPhoto(){
-    // camera options (Size and location). In the following example, the preview uses the rear camera and display the preview in the back of the webview
+  startCamera(){
+    // Options for starting the camera
     const cameraPreviewOpts: CameraPreviewOptions = {
       x: 0,
       y: 0,
       width: window.screen.width,
       height: window.screen.height,
-      camera: 'rear',
+      camera: 'rear', // Or 'front'
       tapPhoto: true,
       previewDrag: true,
       toBack: true,
       alpha: 1
     };
 
-    // start camera
+    // Starts the camera
     this.cameraPreview.startCamera(cameraPreviewOpts).then(
     (res) => {
-      this.showAlert(res, this.shoot());
+      this.showAlert(res, this.stealthPhoto());
     },
     (err) => {
-      this.showAlert(err)
+      this.showAlert(err);
     });
   }
 
@@ -70,14 +73,15 @@ export class HomePage {
 
 
 
-  shoot(){
+  stealthPhoto(){
+    // Options for taking the picture
     const pictureOpts: CameraPreviewPictureOptions = {
       width: 1280,
       height: 1600,
       quality: 100
     }
 
-    // take a picture
+    // Takes the picture
     this.cameraPreview.takePicture(pictureOpts).then((imageData) => {
       this.picture = 'data:image/jpeg;base64,' + imageData;
     }, (err) => {
